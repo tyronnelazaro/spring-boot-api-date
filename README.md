@@ -3,6 +3,7 @@ A Simple Serverless Java Spring Boot REST API on AWS Lambda and API Gateway (GET
 
 ## To Deploy
 File Jenkinsfile-aws is a jenkinsfile configuration used by Jenkins pipeline to automatically perform the following stages:
+
     - Using Gradle Wrapper, build and test the Java Spring Boot serverless REST API and outputs a zip file at build/distributions folder
     ```bash
     ./gradew clean build
