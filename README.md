@@ -4,22 +4,22 @@ A Simple Serverless Java Spring Boot REST API on AWS Lambda and API Gateway (GET
 ## To Deploy
 File Jenkinsfile-aws is a jenkinsfile configuration used by Jenkins pipeline to automatically perform the following stages:
 
-    - Using Gradle Wrapper, build and test the Java Spring Boot serverless REST API and outputs a zip file at build/distributions folder
-    ```bash
-    ./gradew clean build
-    ```  
-    - Using Cloudformation template sam-template.yaml, upload the Spring Boot artifact to S3 bucket  
-    ```bash
-    aws cloudformation package --template-file sam-template.yaml --s3-bucket devops-pureincubation-us-east-2 --output-template-file springboot-serverdate.yaml --region us-east-2
-    ```
-    - Deploy the Cloudformation stack to create a Lambda function and API Gateway
-    ```bash
-    aws cloudformation deploy --template-file springboot-serverdate.yaml --stack-name ServerDateApi --region us-east-2 --capabilities CAPABILITY_IAM
-    ```     
-    - Get the API Gateway Endpoint to test the actual API
-    ```bash
-    aws cloudformation describe-stacks --stack-name ServerDateApi --region us-east-2 --query \'Stacks[0].Outputs[*].{Service:OutputKey,Endpoint:OutputValue}\'
-    ```
+- Using Gradle Wrapper, build and test the Java Spring Boot serverless REST API and outputs a zip file at build/distributions folder
+```bash
+./gradew clean build
+```  
+- Using Cloudformation template sam-template.yaml, upload the Spring Boot artifact to S3 bucket  
+```bash
+aws cloudformation package --template-file sam-template.yaml --s3-bucket devops-pureincubation-us-east-2 --output-template-file springboot-serverdate.yaml --region us-east-2
+```
+- Deploy the Cloudformation stack to create a Lambda function and API Gateway
+```bash
+aws cloudformation deploy --template-file springboot-serverdate.yaml --stack-name ServerDateApi --region us-east-2 --capabilities CAPABILITY_IAM
+```     
+- Get the API Gateway Endpoint to test the actual API
+```bash
+aws cloudformation describe-stacks --stack-name ServerDateApi --region us-east-2 --query \'Stacks[0].Outputs[*].{Service:OutputKey,Endpoint:OutputValue}\'
+```
 
 ## To Test
 To test if the API is working, visit the AWS API Gateway Endpoint in your chosen browser or perform the CURL command. The expected result is the server date, time, and timezone in json format. The server mentioned here would be the EC2 instance (managed by AWS, not the user) where the Lambda function is running.
