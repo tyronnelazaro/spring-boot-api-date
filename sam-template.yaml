@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: "Spring Boot Server Date"
+Globals:
+  Api:
+    EndpointConfiguration: REGIONAL
+
+  Function:
+    Runtime: java11
+    Tags:
+      ENVIRONMENT: POC
+      COST_CENTER: DEVOPS
+      APPLICATION: DEVOPS
+    Timeout: 120
+    MemorySize: 512
+
+Resources:
+  ServerDateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: com.example.StreamLambdaHandler
+      CodeUri: build/distributions/spring-boot-api-date-0.0.1-SNAPSHOT.zip
+      Policies: AWSLambdaBasicExecutionRole
+      Events:
+        GetResource:
+          Type: Api
+          Properties:
+            Path: /serverdate
+            Method: get
+
+Outputs:
+  ServerDateApi:
+    Description: API Gateway for Lambda ServerDateFunction
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/serverdate/"

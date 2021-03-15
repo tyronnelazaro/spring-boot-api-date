@@ -1,0 +1,143 @@
+
+gitUrl = 'https://github.com/tyronnelazaro/spring-boot-api-serverdate.git'
+gitbranchDevOps = 'main'
+
+def AssumeRole(roleId, accountId) {
+	//unset env.AWS_ACCESS_KEY_ID env.AWS_SECRET_ACCESS_KEY env.AWS_SESSION_TOKEN env.AWS_SECURITY_TOKEN
+	def credsJSON = sh script: "aws sts assume-role --role-session-name role --role-arn arn:aws:iam::${accountId}:role/${roleId} --output json", returnStdout: true
+	def creds = readJSON text: credsJSON
+	env.AWS_ACCESS_KEY_ID = creds.Credentials.AccessKeyId
+	env.AWS_SECRET_ACCESS_KEY = creds.Credentials.SecretAccessKey
+	env.AWS_SESSION_TOKEN = creds.Credentials.SessionToken
+	env.AWS_SECURITY_TOKEN = creds.Credentials.SessionToken
+}
+
+pipeline {
+	agent {
+		label "springboot-node"
+	}
+
+	stages {
+		stage("Switch Environment") {
+			steps {
+				script {
+					switch(DEPLOY_ENV) {
+						case "prod":
+							aws_region = 'us-east-2'
+							aws_env = 'prod'
+              role = 'Jenkins-taskrole'
+							AccountID = 'aws-account-id-for-prod'
+							gitCreds = 'jenkins-credentials-for-prod'
+							break
+            case "uat":
+							aws_region = 'us-east-2'
+							aws_env = 'uat'
+              role = 'Jenkins-taskrole'
+							AccountID = 'aws-account-id-for-uat'
+							gitCreds = 'jenkins-credentials-for-uat'
+							break
+            case "qa":
+							aws_region = 'us-east-1'
+							aws_env = 'qa'
+              role = 'Jenkins-taskrole'
+							AccountID = 'aws-account-id-for-qa'
+							gitCreds = 'jenkins-credentials-for-qa'
+							break
+            case "dev":
+							aws_region = 'us-east-1'
+							aws_env = 'dev'
+              role = 'Jenkins-taskrole'
+							AccountID = 'aws-account-id-for-dev'
+							gitCreds = 'jenkins-credentials-for-dev'
+							break
+						default:
+							currentBuild.result = 'FAILURE'
+							error "Guess what, build failed, as \"${DEPLOY_ENV}\" is not a defined environment"
+					}
+				}
+			}
+		}
+
+		stage("Clone_Git_Branch") {
+			steps {
+				script {
+					dir('Git-Branch') {
+							git branch: gitBranch, credentialsId: gitCreds, url: gitUrl
+					}
+				currentBuild.displayName = "${job_name}-${branch_tag}"
+				}
+			}
+		}
+
+		stage("Assume Role") {
+			steps {
+				script {
+					dir('Deploy') {
+						AssumeRole("${role}","${AccountID}")
+					}
+				}
+			}
+		}
+
+		stage("Build and Test") {
+			steps {
+				script {
+				  dir('Git-Branch') {
+            sh './gradlew clean build'
+					}
+				}
+			}
+		}
+
+    stage("Package Cloudformation") {
+      steps {
+        script {
+          dir('Git-Branch') {
+            sh 'aws cloudformation package --template-file sam-template.yaml --s3-bucket devops-pureincubation-us-east-2 --output-template-file springboot-serverdate.yaml --region us-east-2'
+          }
+        }
+      }
+    }
+
+    stage("Deploy Cloudformation") {
+			steps {
+				script {
+				  dir('Git-Branch') {
+            sh 'aws cloudformation deploy --template-file springboot-serverdate.yaml --stack-name ServerDateApi --region us-east-2 --capabilities CAPABILITY_IAM'
+					}
+				}
+			}
+		}
+
+    stage("Get API Gateway Endpoint") {
+			steps {
+				script {
+				  dir('Git-Branch') {
+            sh "aws cloudformation describe-stacks --stack-name ServerDateApi --region us-east-2 --query 'Stacks[0].Outputs[*].{Service:OutputKey,Endpoint:OutputValue}'"
+					}
+				}
+			}
+		}
+	}
+
+	post {
+		success {
+			script {
+				currentBuild.result = "SUCCESS"
+				echo currentBuild.result
+			}
+		}
+
+		failure {
+			script {
+				currentBuild.result = "FAILURE"
+				echo currentBuild.result
+			}
+		}
+
+		cleanup { //after every other post condition has been evaluated, regardless of the Pipeline or stage’s status
+			println('Cleaning up workspace...')
+			cleanWs deleteDirs: true
+		}
+	}
+}
