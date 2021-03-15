@@ -34,6 +34,15 @@ Example Test Result:
     {"date":"03-12-2021","time":"15:34:27","timezone":"+0000"}
     ```
 
+
+# The Pre-requisites
+- Java 8 or above
+- Spring Framework 5.3.4 or above
+- Gradle 6 or above
+- AWS Cli
+- AWS SAM Cli
+
+
 # The Solution
 ## Dependencies
 1. In build.gradle, Add the aws-serverless-java-container-spring framework as a dependency to deploy the Spring Boot application to Lambda
