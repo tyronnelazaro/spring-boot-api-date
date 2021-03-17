@@ -26,7 +26,7 @@ To test if the API is working, visit the AWS API Gateway Endpoint in your chosen
 
 Example Test Command:
     ```bash
-    curl -X GET https://8q7gb5p0w2.execute-api.us-east-2.amazonaws.com/Prod/serverdate
+    curl -X GET https://gqhvylstke.execute-api.us-east-2.amazonaws.com/Prod/serverdate
     ```
 
 Example Test Result:
