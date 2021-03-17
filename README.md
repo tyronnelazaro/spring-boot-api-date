@@ -6,7 +6,7 @@ File Jenkinsfile-aws is a jenkinsfile configuration used by Jenkins pipeline to 
 
 - Using Gradle Wrapper, build and test the Java Spring Boot serverless REST API and outputs a zip file at build/distributions folder
 ```bash
-./gradew clean build
+./gradlew clean build
 ```  
 - Using Cloudformation template sam-template.yaml, upload the Spring Boot artifact to S3 bucket  
 ```bash
