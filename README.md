@@ -1,5 +1,5 @@
 # spring-boot-api-date
-A Simple Serverless Java Spring Boot REST API on AWS Lambda and API Gateway (GET method) which returns the server date, time, and timezone in json format
+A Simple Serverless Java Spring Boot REST API on AWS Lambda and API Gateway (GET method) which returns the server date, time, timezone, and epoch time in json format.
 
 ## To Deploy
 File Jenkinsfile-aws is a jenkinsfile configuration used by Jenkins pipeline to automatically perform the following stages:
@@ -14,7 +14,7 @@ aws cloudformation package --template-file sam-template.yaml --s3-bucket devops-
 ```
 - Deploy the Cloudformation stack to create a Lambda function and API Gateway
 ```bash
-aws cloudformation deploy --template-file springboot-serverdate.yaml --stack-name ServerDateApi --region us-east-2 --capabilities CAPABILITY_IAM
+aws cloudformation deploy --template-file springboot-serverdate.yaml --stack-name ServerDate-Api --region us-east-2 --capabilities CAPABILITY_IAM
 ```     
 - Get the API Gateway Endpoint to test the actual API
 ```bash
@@ -31,7 +31,7 @@ Example Test Command:
 
 Example Test Result:
     ```json
-    {"date":"03-12-2021","time":"15:34:27","timezone":"+0000"}
+    {"date":"03-18-2021","time":"08:43:48","timezone":"UTC+0000","epoch":"1616057028"}
     ```
 
 
@@ -51,8 +51,9 @@ Example Test Result:
 
 ## Controller
 2. In src/main/java/com/example/controller/ServerDateController.java, the RestController annotation is used.
-  - First, java.time package is imported to use for getting the required date, time, and timezone.
+  - First, java.time package is imported to use for getting the required date, time, timezone, and epoch.
   - DateTimeFormatter is used to format the output to more human readable results
+  - Epoch is in long data type. the return output expects a string data type. Convert long to string.
   - GET /serverdate produces JSON
 
 ## Lambda Handler
