@@ -34,6 +34,7 @@ Example Test Result:
     {"date":"03-18-2021","time":"08:43:48","timezone":"UTC+0000","epoch":"1616057028"}
     ```
 
+NOTE: There will be a few seconds delay in showing the actual data the first time due to cold start of the Lambda function. Additional code improvements can be included to keep the Lambda function warm. 
 
 # The Pre-requisites
 - Java 8 or above
