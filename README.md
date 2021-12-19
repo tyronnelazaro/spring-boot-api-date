@@ -10,15 +10,15 @@ File Jenkinsfile-aws is a jenkinsfile configuration used by Jenkins pipeline to 
 ```  
 - Using Cloudformation template sam-template.yaml, upload the Spring Boot artifact to S3 bucket  
 ```bash
-aws cloudformation package --template-file sam-template.yaml --s3-bucket devops-pureincubation-us-east-2 --output-template-file springboot-serverdate.yaml --region us-east-2
+aws cloudformation package --template-file sam-template.yaml --s3-bucket {{bucket-name}} --output-template-file springboot-serverdate.yaml --region {{region}}
 ```
 - Deploy the Cloudformation stack to create a Lambda function and API Gateway
 ```bash
-aws cloudformation deploy --template-file springboot-serverdate.yaml --stack-name ServerDate-Api --region us-east-2 --capabilities CAPABILITY_IAM
+aws cloudformation deploy --template-file springboot-serverdate.yaml --stack-name ServerDate-Api --region {{region}} --capabilities CAPABILITY_IAM
 ```     
 - Get the API Gateway Endpoint to test the actual API
 ```bash
-aws cloudformation describe-stacks --stack-name ServerDateApi --region us-east-2 --query \'Stacks[0].Outputs[*].{Service:OutputKey,Endpoint:OutputValue}\'
+aws cloudformation describe-stacks --stack-name ServerDateApi --region {{region}} --query \'Stacks[0].Outputs[*].{Service:OutputKey,Endpoint:OutputValue}\'
 ```
 
 ## To Test
@@ -26,7 +26,7 @@ To test if the API is working, visit the AWS API Gateway Endpoint in your chosen
 
 Example Test Command:
     ```bash
-    curl -X GET https://gqhvylstke.execute-api.us-east-2.amazonaws.com/Prod/serverdate
+    curl -X GET https://xxxxxxxxx.execute-api.us-east-2.amazonaws.com/Prod/serverdate
     ```
 
 Example Test Result:
